@@ -1,0 +1,591 @@
+/* GlassHome — frosted-glass Spicetify theme.
+   The cover backdrop and --dex-c1 / --dex-c2 are driven by theme.js. */
+
+:root {
+  --dex-c1: #c9873a;
+  --dex-c2: #6b3a1d;
+  --dex-glass: rgba(255, 255, 255, 0.1);
+  --dex-glass-2: rgba(255, 255, 255, 0.14);
+  --dex-glass-hover: rgba(255, 255, 255, 0.14);
+  --dex-line: rgba(255, 255, 255, 0.16);
+  --dex-line-2: rgba(255, 255, 255, 0.22);
+  --dex-blur: blur(14px) saturate(1.4);
+  --dex-blur-strong: blur(20px) saturate(1.5);
+  --dex-spring: cubic-bezier(0.3, 1.3, 0.5, 1);
+  --dex-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dex-fade: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dex-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Background layers ---------- */
+
+html, body, #main, .dex-clear, .dex-shell {
+  background: transparent !important;
+}
+body { background-color: #07070a !important; }
+#main { position: relative; z-index: 1; }
+
+#dex-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  background-color: #07070a;
+}
+#dex-bg .dex-base {
+  position: absolute;
+  inset: 0;
+  background-color: var(--dex-c2);
+  background-image: linear-gradient(160deg, #08080c 0%, rgba(8, 8, 12, 0) 100%);
+  transition: background-color 1.4s var(--dex-fade);
+}
+#dex-bg .dex-art {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  image-rendering: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.4s var(--dex-fade), visibility 0s linear 1.4s;
+}
+#dex-bg .dex-art.is-on {
+  opacity: 0.9;
+  visibility: visible;
+  transition: opacity 1.4s var(--dex-fade), visibility 0s;
+}
+#dex-bg .dex-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 0.35));
+}
+
+
+
+/* ---------- Glass tokens ---------- */
+/* Spotify paints hovers, chips, cards and panels from these variables; making them
+   translucent turns all of them into frosted glass over the cover backdrop. */
+:root, body, .encore-dark-theme, .encore-light-theme {
+  --background-base: #000 !important;
+  --background-highlight: rgba(255, 255, 255, 0.12) !important;
+  --background-press: rgba(255, 255, 255, 0.08) !important;
+  --background-elevated-base: rgba(255, 255, 255, 0.10) !important;
+  --background-elevated-highlight: rgba(255, 255, 255, 0.16) !important;
+  --background-elevated-press: rgba(255, 255, 255, 0.12) !important;
+  --background-tinted-base: rgba(255, 255, 255, 0.12) !important;
+  --background-tinted-highlight: rgba(255, 255, 255, 0.18) !important;
+  --background-tinted-press: rgba(255, 255, 255, 0.14) !important;
+  --spice-card: rgba(255, 255, 255, 0.10) !important;
+  --spice-main-elevated: rgba(255, 255, 255, 0.10) !important;
+  --spice-highlight: rgba(255, 255, 255, 0.12) !important;
+  --spice-highlight-elevated: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* ---------- Layout shell ---------- */
+
+.dex-shell {
+  --panel-gap: 16px !important;
+}
+
+.dex-globalnav,
+.dex-player {
+  background: transparent !important;
+}
+
+/* Left rail: Your Library as a floating glass column */
+.dex-nav {
+  border: 1px solid var(--dex-line);
+  border-radius: 32px !important;
+  overflow: hidden;
+}
+#Desktop_LeftSidebar_Id,
+#Desktop_LeftSidebar_Id > nav {
+  background: transparent !important;
+}
+.dex-nav [role="row"],
+.dex-nav [role="row"] > div {
+  border-radius: 16px !important;
+}
+.dex-nav [role="row"]:hover > div {
+  background-color: var(--dex-glass-hover) !important;
+}
+
+/* Main view: content sits straight on the tinted background */
+.dex-main {
+  background: transparent !important;
+  border-radius: 32px !important;
+}
+.dex-main .main-view-container,
+.dex-main .main-view-container__scroll-node,
+.dex-main .main-view-container__scroll-node-child,
+.dex-main .main-view-container__scroll-node-child-spacer {
+  background: transparent !important;
+}
+
+/* Page colour layers found by theme.js: tall ones go, the sticky top strip turns to glass */
+.dex-nobg {
+  background: none !important;
+  background-image: none !important;
+}
+.dex-topbar {
+  background: none !important;
+  background-color: transparent !important;
+  backdrop-filter: var(--dex-blur);
+}
+
+/* Right panel (Now Playing / Queue / Lyrics side views) */
+.dex-right {
+  border-radius: 32px;
+  overflow: hidden;
+}
+.dex-right > * {
+  border: 1px solid var(--dex-line-2);
+  border-radius: 32px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+/* ---------- Top bar ---------- */
+
+/* Back / forward: the buttons beside the forward button's own testid */
+.dex-globalnav :has(> [data-testid="top-bar-forward-button"]) {
+  gap: 8px;
+}
+.dex-globalnav :has(> [data-testid="top-bar-forward-button"]) > button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: var(--dex-blur);
+  border: 1px solid var(--dex-line);
+  color: #fff !important;
+}
+
+/* Search pill (tagged by theme.js: the input's first painted ancestor) */
+.dex-search {
+  height: 44px;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: var(--dex-blur);
+  border: 1px solid var(--dex-line) !important;
+  box-shadow: none !important;
+  transition: background 0.3s, border-color 0.3s;
+}
+.dex-search:hover,
+.dex-search:focus-within {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+.dex-search input {
+  background: transparent !important;
+  color: #fff !important;
+}
+.dex-search input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---------- Home hero injected by theme.js ---------- */
+
+.dex-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 24px 8px;
+  animation: dex-rise 0.6s var(--dex-ease);
+}
+.dex-hero__from {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+.dex-hero__title {
+  font-size: clamp(52px, 8vw, 116px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  overflow-wrap: anywhere;
+}
+.dex-hero__artist {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  font-size: 22px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  width: fit-content;
+}
+.dex-hero__artist:hover { color: #fff; text-decoration: underline; }
+.dex-hero__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+.dex-btn {
+  appearance: none;
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.35s var(--dex-spring), background 0.3s;
+}
+.dex-btn:hover { transform: scale(1.04); }
+.dex-btn:active { transform: scale(0.97); }
+.dex-btn svg { width: 16px; height: 16px; fill: currentColor; }
+.dex-btn--solid {
+  border: 0;
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+}
+.dex-btn--glass {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-weight: 600;
+}
+.dex-btn--glass:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* ---------- Content ---------- */
+
+/* Page headers (playlist, album, artist) */
+[data-testid="entity-header"],
+[data-testid="action-bar"] {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+[data-testid="entityTitle"],
+[data-testid="entityTitle"] h1,
+[data-testid="entityTitle"] span {
+  font-weight: 800 !important;
+  letter-spacing: -0.05em !important;
+  line-height: 0.95 !important;
+}
+[data-testid="entityType"] {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+:is([data-testid="playlist-page"], [data-testid="album-page"]) [data-testid="entity-header"] img {
+  border-radius: 32px !important;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Cards */
+.main-card-card,
+[data-encore-id="card"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 26px !important;
+  transition: transform 0.45s var(--dex-spring), box-shadow 0.45s, background 0.3s !important;
+}
+.main-card-card:hover,
+[data-encore-id="card"]:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.45);
+}
+.main-cardImage-imageWrapper,
+.main-cardImage-image,
+.main-card-imageContainer {
+  border-radius: 20px !important;
+}
+.main-cardImage-imageWrapper[class*="ircular"],
+.main-cardImage-image[class*="ircular"] {
+  border-radius: 50% !important;
+}
+section[data-testid="home-page"] h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Track lists */
+[data-testid="tracklist-row"] {
+  border-radius: 20px !important;
+  transition: background 0.3s;
+}
+[data-testid="tracklist-row"]:hover,
+[data-testid="tracklist-row"]:focus-within {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+[aria-selected="true"] > [data-testid="tracklist-row"] {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+[data-testid="tracklist-row"] img {
+  border-radius: 12px !important;
+}
+
+/* ---------- Floating player ---------- */
+
+.dex-player {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 6px !important;
+}
+.dex-player > *,
+[data-testid="now-playing-bar"] {
+  width: min(960px, calc(100% - 40px)) !important;
+  min-width: 0 !important;
+}
+[data-testid="now-playing-bar"] {
+  height: 76px;
+  margin: 0 auto;
+  padding: 0 22px 0 12px !important;
+  border-radius: 38px !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: var(--dex-blur-strong);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+[data-testid="now-playing-widget"] img {
+  border-radius: 18px !important;
+}
+[data-testid="control-button-playpause"] {
+  background: #fff !important;
+  color: #000 !important;
+  border-radius: 50% !important;
+}
+
+/* Cards: no solid hover plate; the glass tokens above do the work */
+.main-card-card:hover,
+[data-encore-id="card"]:hover,
+.main-card-card:hover > *,
+.main-card-cardContainer:hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+.main-card-cardMetadata { background: transparent !important; }
+
+/* Right panel: lyrics / about cards take the glass fill instead of a solid cover colour */
+.dex-right [style*="background-color"]:not(img):not([role="progressbar"]),
+.dex-right [style*="--lyrics-color-background"] {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ---------- Fixes after review ---------- */
+
+/* Surfaces inside the side panels are cleared by element, not by the (now opaque) base token. */
+:where(.dex-nav, .dex-right) :is(div, section, aside, nav, header, ul) {
+  background-color: transparent;
+}
+/* Lyrics / about cards: glass fill, white text */
+.dex-right [style*="background-color"]:not(img),
+.dex-right [style*="background-color"]:not(img) * {
+  color: #fff !important;
+}
+[data-testid="control-button-playpause"] svg {
+  fill: #000 !important;
+  color: #000 !important;
+}
+
+/* Cards: round the whole hover plate, no square corners */
+.main-card-card,
+.main-card-cardContainer,
+[data-encore-id="card"] {
+  border-radius: 26px !important;
+  overflow: hidden;
+}
+.main-card-card > * { border-radius: 26px !important; }
+
+/* Thin scrollbar that sits at the edge instead of over the content */
+.dex-main .os-scrollbar-vertical,
+.dex-right .os-scrollbar-vertical,
+.dex-nav .os-scrollbar-vertical {
+  width: 8px !important;
+  padding: 2px !important;
+}
+.dex-main .os-scrollbar-handle,
+.dex-right .os-scrollbar-handle,
+.dex-nav .os-scrollbar-handle {
+  width: 4px !important;
+  margin-inline: auto;
+  border-radius: 4px !important;
+  background: rgba(255, 255, 255, 0.28) !important;
+}
+.dex-main .os-scrollbar-handle:hover { background: rgba(255, 255, 255, 0.5) !important; }
+.dex-main .dex-vp { padding-right: 10px; }
+
+/* Home hero floats above the (React-owned) page, which reserves room for it */
+.dex-hero-host {
+  position: fixed;
+  z-index: 3;
+  display: none;
+  overflow: hidden;
+  border-radius: 32px;
+  pointer-events: none;
+}
+.dex-hero-host.is-on { display: block; }
+.dex-hero-host .dex-hero { pointer-events: none; will-change: transform; }
+/* only the controls catch the mouse; everywhere else the wheel and clicks reach the page underneath */
+.dex-hero-host .dex-hero button { pointer-events: auto; }
+html.dex-has-hero section[data-testid="home-page"] {
+  padding-top: var(--dex-hero-h, 380px);
+}
+
+/* ---------- Performance + review fixes ---------- */
+.dex-search, .dex-btn--glass,
+.dex-globalnav :has(> [data-testid="top-bar-forward-button"]) > button {
+  backdrop-filter: none !important;
+}
+
+/* Side panels: real glass, beating the black base token on every nested surface */
+.dex-nav :is(div, nav, section, ul, header),
+.dex-right :is(div, section, aside, header, ul) {
+  background-color: transparent !important;
+}
+html body .dex-nav,
+html body .dex-right > * {
+  background-color: rgba(10, 10, 14, 0.28) !important;
+  backdrop-filter: var(--dex-blur-strong);
+}
+html body .dex-nav [role="row"]:hover > div,
+html body .dex-nav [role="row"]:focus-within > div {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Player play/pause: white disc, black glyph (inner wrappers took the black base token) */
+[data-testid="control-button-playpause"],
+[data-testid="control-button-playpause"] > * {
+  background-color: #fff !important;
+  border-radius: 50% !important;
+}
+
+/* Hero clears the sticky filter chips */
+.dex-hero { padding-top: 88px; }
+
+.dex-nav svg { color: #fff; }
+
+/* ---------- Floating player ---------- */
+/* Panels run all the way to the window edge; the player cell becomes a click-through overlay
+   and only the pill itself catches the mouse. */
+.dex-main, .dex-nav, .dex-right {
+  grid-row-end: -1 !important;
+}
+.dex-player {
+  pointer-events: none;
+  align-items: flex-end;
+  padding: 0 0 16px !important;
+  margin: 0 !important;
+  background: transparent !important;
+  z-index: 20 !important;
+}
+.dex-player > *,
+[data-testid="now-playing-bar"] {
+  pointer-events: auto;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 2px 0 rgba(255, 255, 255, 0.12) inset;
+}
+/* keep the last rows reachable above the floating pill */
+.dex-vp {
+  padding-bottom: 112px !important;
+}
+
+.dex-topbar::before, .dex-topbar::after { background: none !important; }
+
+/* ---------- Lite mode (profile menu: "GlassHome: modo lite") ---------- */
+html.dex-lite #dex-bg .dex-art,
+html.dex-lite #dex-bg .dex-sheen { display: none; }
+html.dex-lite .dex-nav,
+html.dex-lite .dex-right > *,
+html.dex-lite [data-testid="now-playing-bar"],
+html.dex-lite .dex-topbar,
+html.dex-lite .dex-globalnav * {
+  backdrop-filter: none !important;
+}
+html.dex-lite body .dex-nav,
+html.dex-lite body .dex-right > *,
+html.dex-lite [data-testid="now-playing-bar"] {
+  background-color: rgba(18, 18, 22, 0.82) !important;
+}
+html.dex-lite .main-card-card,
+html.dex-lite [data-testid="tracklist-row"],
+html.dex-lite .dex-btn { transition: none !important; }
+html.dex-lite .dex-hero { animation: none; }
+
+/* Surfaces found by theme.js: always see-through, but never the glass panels themselves
+   (those keep their own higher-specificity fill). */
+.dex-nobg, .dex-nobg::before, .dex-nobg::after {
+  background: none !important;
+  background-image: none !important;
+}
+
+/* Now Playing: only a Canvas has a <video>, so only Canvases get the fade. The mask sits on the video's
+   container (see theme.js): the clip keeps its colours at the top and dissolves into the glass below. */
+.dex-canvas {
+  isolation: isolate;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 38%, rgba(0, 0, 0, 0.5) 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 38%, rgba(0, 0, 0, 0.5) 68%, transparent 100%);
+}
+
+/* Now Playing: the panel's <aside> paints a full-size opaque black ::before over the glass. */
+.dex-right aside::before,
+.dex-right aside::after {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* ---------- Popups: 100% opaque, cover-tinted, rounded ---------- */
+/* Menus, dialogs and tooltips paint with the same tokens the glass panels use; inside them the tokens
+   become solid colours taken from the cover (--dex-menu / --dex-menu-hl, set by theme.js). Descendants
+   inherit, so every surface and hover state is covered. */
+:root {
+  --dex-menu: #2a2a2a;
+  --dex-menu-hl: #3d3d3d;
+}
+#context-menu,
+[role="menu"],
+[role="dialog"],
+[role="tooltip"],
+.tippy-box,
+[data-tippy-root],
+.e-10860-legacy-popover,
+[class*="ReactModal"] {
+  --spice-card: var(--dex-menu) !important;
+  --spice-main-elevated: var(--dex-menu) !important;
+  --background-base: var(--dex-menu) !important;
+  --background-highlight: var(--dex-menu-hl) !important;
+  --background-press: var(--dex-menu) !important;
+  --background-elevated-base: var(--dex-menu) !important;
+  --background-elevated-highlight: var(--dex-menu-hl) !important;
+  --background-elevated-press: var(--dex-menu) !important;
+  --background-tinted-base: var(--dex-menu-hl) !important;
+  --background-tinted-highlight: var(--dex-menu-hl) !important;
+  --background-tinted-press: var(--dex-menu) !important;
+  --spice-highlight: var(--dex-menu-hl) !important;
+  --spice-highlight-elevated: var(--dex-menu-hl) !important;
+}
+/* the menu surface itself: solid, rounded, no blur */
+#context-menu > *,
+#context-menu [role="menu"],
+[role="menu"],
+[role="dialog"],
+.tippy-box {
+  background-color: var(--dex-menu) !important;
+  backdrop-filter: none !important;
+  border-radius: 22px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+}
+#context-menu [role="menu"],
+[role="menu"] { padding: 8px !important; }
+#context-menu [role="menuitem"],
+[role="menu"] > *,
+[role="menu"] button { border-radius: 14px; }
+
+/* ---------- Quick-search dropdown: opaque ---------- */
+#search-dropdown > * {
+  background-color: var(--dex-menu, #2a2a2a) !important;
+  backdrop-filter: none !important;
+}
+
+/* The top bar (search + its dropdown) rises above the floating Home hero (z-index 3). */
+.dex-globalnav { position: relative; z-index: 20 !important; }

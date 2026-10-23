@@ -1,0 +1,24 @@
+{
+  "name": "GlassHome",
+  "description": "Frosted-glass layout with a cover-tinted backdrop, a floating player and a Home 'now playing' hero. Needs its helper script (see README).",
+  "preview": "assets/preview.png",
+  "readme": "README.md",
+  "usercss": "theme/user.css",
+  "schemes": "theme/color.ini",
+  "include": [
+    "https://karlos005.github.io/spicetify-glasshome/theme/theme.js"
+  ],
+  "branch": "main",
+  "authors": [
+    {
+      "name": "Karlos005",
+      "url": "https://github.com/Karlos005"
+    }
+  ],
+  "tags": [
+    "dark",
+    "glass",
+    "dynamic",
+    "floating player"
+  ]
+}
