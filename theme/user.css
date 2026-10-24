@@ -598,3 +598,13 @@ html.dex-lite .dex-hero { animation: none; }
   background-image: none !important;
   backdrop-filter: var(--dex-blur);
 }
+
+/* Artist header photo: faded by scroll position (variable set by theme.js). The container is found by
+   structure, not by Spotify's obfuscated class names. */
+.dex-main div:has(> [data-testid="background-image"]) {
+  opacity: var(--dex-photo, 1);
+}
+/* Spotify's own cover-up layer (base colour fading in over the photo) would darken it while it fades. */
+.dex-main [data-testid="background-image"] + div::after {
+  display: none !important;
+}

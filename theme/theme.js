@@ -411,26 +411,31 @@
   }
   const sweepTop = () => sweepSurfaces(true);
 
-  // An artist's header photo hangs off .main-view-container, outside the scroller. Spotify keeps it pinned
-  // to the top and hides it behind the page content, which has an opaque background; this theme makes that
-  // background see-through, so the photo is faded out by scroll position instead.
-  let photoBox = null;
-  function fadePhoto(top) {
-    const main = document.querySelector(".dex-main");
-    if (!main) return;
-    if (!photoBox || !photoBox.isConnected) {
-      const img = main.querySelector("[data-testid='background-image']");
-      photoBox = img && img.parentElement;
-    }
-    if (!photoBox) return;
-    const o = Math.max(0, Math.min(1, 1 - top / 300));
-    const v = o === 1 ? "" : o.toFixed(2);
-    if (photoBox.style.opacity !== v) photoBox.style.opacity = v;
+  // An artist's header photo hangs off .main-view-container, outside the scroller. Spotify keeps it pinned to
+  // the top and covers it with an opaque colour layer as the page scrolls; this theme makes that colour
+  // see-through, so the photo is faded out by scroll position instead.
+  // The value lives in a CSS variable on <html> (an element Spotify never re-creates) and user.css applies it to
+  // the photo's container. Two earlier versions wrote opacity straight onto Spotify's element and listened to
+  // every scroll event under the main view: a carousel scrolling (scrollTop 0) or a re-render of the photo
+  // brought it back to full opacity.
+  let mainVp = null;
+  const getMainVp = () => {
+    if (!mainVp || !mainVp.isConnected) mainVp = document.querySelector(".dex-main .dex-vp");
+    return mainVp;
+  };
+  let lastPhotoFade = "";
+  function fadePhoto() {
+    const vp = getMainVp();
+    const o = vp ? Math.max(0, Math.min(1, 1 - vp.scrollTop / 300)) : 1;
+    const v = o.toFixed(3);
+    if (v === lastPhotoFade) return;
+    lastPhotoFade = v;
+    document.documentElement.style.setProperty("--dex-photo", v);
   }
 
   document.addEventListener("scroll", e => {
     if (!(e.target && e.target.nodeType === 1 && e.target.closest(".dex-main"))) return;
-    fadePhoto(e.target.scrollTop);
+    if (e.target === getMainVp()) fadePhoto(); // only the page scroller: carousels and nested scrollers are ignored
     syncHero();
     if (topQueued) return;
     topQueued = true;
@@ -448,8 +453,7 @@
     watchMain();
     mountHero();
     sweepSurfaces();
-    const sc = document.querySelector(".dex-vp");
-    fadePhoto(sc ? sc.scrollTop : 0);
+    fadePhoto();
   }
 
   let queued = false;
@@ -476,7 +480,7 @@
 
   History.listen(() => {
     refreshPage();
-    for (const ms of [200, 700, 1600]) setTimeout(() => sweepSurfaces(true), ms);
+    for (const ms of [200, 700, 1600]) setTimeout(() => { sweepSurfaces(true); fadePhoto(); }, ms);
   });
   Spicetify.Player.addEventListener("songchange", () => {
     updateHero();
