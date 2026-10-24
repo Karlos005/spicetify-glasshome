@@ -101,7 +101,11 @@
       const minW = main.clientWidth * 0.5;
       main.querySelectorAll('[style*="background"]').forEach(n => {
         if (n.classList.contains("dex-nobg") || n.classList.contains("dex-topbar") || n.closest(".dex-hero")) return;
-        const pos = getComputedStyle(n).position;
+        // Real pictures (an artist's header photo) are kept; only flat colour and gradient layers go.
+        if (/url\(["']?https?:/.test(n.getAttribute("style") || "")) return;
+        const ncs = getComputedStyle(n);
+        if (/url\(["']?https?:/.test(ncs.backgroundImage || "")) return; // remote picture (artist photo): keep
+        const pos = ncs.position;
         if (pos === "sticky") {
           tag(n, "dex-topbar");
           return;
@@ -379,6 +383,7 @@
           if (n.clientWidth < r.width * minFrac || n.clientHeight < 60) continue;
           if (n.closest(KEEP)) continue;
           const cs = getComputedStyle(n);
+          if (/url\(["']?https?:/.test(cs.backgroundImage || "")) continue; // keep remote pictures (artist header photo), not the data: noise texture
           // Spotify fades the colour in on scroll, so the layer can still be transparent when sampled.
           if (n.clientHeight <= 140 && /^(absolute|sticky|fixed)$/.test(cs.position) && n.getBoundingClientRect().top - r.top < 20) {
             tag(n, "dex-topbar");
@@ -405,8 +410,27 @@
     sweepContainer(document.querySelector(".dex-right"), 0.6);
   }
   const sweepTop = () => sweepSurfaces(true);
+
+  // An artist's header photo hangs off .main-view-container, outside the scroller. Spotify keeps it pinned
+  // to the top and hides it behind the page content, which has an opaque background; this theme makes that
+  // background see-through, so the photo is faded out by scroll position instead.
+  let photoBox = null;
+  function fadePhoto(top) {
+    const main = document.querySelector(".dex-main");
+    if (!main) return;
+    if (!photoBox || !photoBox.isConnected) {
+      const img = main.querySelector("[data-testid='background-image']");
+      photoBox = img && img.parentElement;
+    }
+    if (!photoBox) return;
+    const o = Math.max(0, Math.min(1, 1 - top / 300));
+    const v = o === 1 ? "" : o.toFixed(2);
+    if (photoBox.style.opacity !== v) photoBox.style.opacity = v;
+  }
+
   document.addEventListener("scroll", e => {
     if (!(e.target && e.target.nodeType === 1 && e.target.closest(".dex-main"))) return;
+    fadePhoto(e.target.scrollTop);
     syncHero();
     if (topQueued) return;
     topQueued = true;
@@ -424,6 +448,8 @@
     watchMain();
     mountHero();
     sweepSurfaces();
+    const sc = document.querySelector(".dex-vp");
+    fadePhoto(sc ? sc.scrollTop : 0);
   }
 
   let queued = false;

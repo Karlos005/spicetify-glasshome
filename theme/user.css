@@ -589,3 +589,12 @@ html.dex-lite .dex-hero { animation: none; }
 
 /* The top bar (search + its dropdown) rises above the floating Home hero (z-index 3). */
 .dex-globalnav { position: relative; z-index: 20 !important; }
+
+/* Artist/playlist sticky top bar: Spotify paints it solid grey once the page is scrolled. */
+.main-topBar-background,
+.main-topBar-overlay {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  backdrop-filter: var(--dex-blur);
+}
